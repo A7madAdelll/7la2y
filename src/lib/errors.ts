@@ -19,6 +19,8 @@ export const ERROR_MESSAGES = {
   invalid_transition: "الحالة دي اتغيرت بالفعل. حدّث الشاشة.",
   slug_taken: "اسم الرابط ده مستخدم. جرب اسم تاني.",
   invalid_shop: "بيانات المحل مش صح.",
+  rate_limited: "محاولات كتير ورا بعض. استنى 10 دقايق وجرب تاني.",
+  invalid_client: "حصلت مشكلة. جرب تاني بعد شوية.",
 } as const;
 
 export type ErrorKey = keyof typeof ERROR_MESSAGES;

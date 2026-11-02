@@ -12,7 +12,9 @@ describe("error messages", () => {
       .map((f) => readFileSync(join(MIGRATIONS, f), "utf8"))
       .join("\n");
     const keys = new Set(
-      [...sql.matchAll(/private\.fail\('([a-z_]+)'\)|message = '([a-z_]+)'/g)].map((m) => m[1] ?? m[2]),
+      [...sql.matchAll(/private\.fail\('([a-z_]+)'\)|message = '([a-z_]+)'|'error', '([a-z_]+)'/g)].map(
+        (m) => m[1] ?? m[2] ?? m[3],
+      ),
     );
     keys.delete("p_key"); // the generic raise inside private.fail itself
     expect(keys.size).toBeGreaterThan(10);
