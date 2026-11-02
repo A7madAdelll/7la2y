@@ -9,7 +9,16 @@ work as soon as these exist. Do them in order; each step says what it unblocks.
 2. Apply the database: SQL editor → run each file in `supabase/migrations/` **in filename order**. (Or connect the Supabase connector to this environment and Claude applies them to staging.)
 3. Realtime → Settings: keep **public channels allowed** (the app uses public broadcast pings that carry no customer data).
 4. Authentication → Providers → Email: enabled (staff log in with an email link). URL configuration: add the site URL and `https://<site>/auth/callback` once Vercel exists.
-5. Authentication → Email templates: optional, translate the magic-link email to Arabic.
+5. Authentication → Email templates → **Magic Link**: subject `لينك الدخول لحلاقي`, body:
+
+   ```html
+   <div dir="rtl" style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.7">
+     <p>أهلاً،</p>
+     <p>دوس على الزرار ده عشان تدخل على حلاقي. افتحه من نفس الموبايل اللي طلبت منه اللينك.</p>
+     <p><a href="{{ .ConfirmationURL }}" style="background:#0b6b6b;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;display:inline-block">ادخل على حلاقي</a></p>
+     <p style="color:#4a535c;font-size:14px">اللينك ده لمرة واحدة. لو مطلبتش دخول، تجاهل الرسالة.</p>
+   </div>
+   ```
 6. Settings → API: copy **Project URL** and **anon public key** into Vercel / `.env.local` (see `.env.example`). Copy the **service_role key** into Vercel only, marked sensitive. Never paste it in chat.
 
 ### First shop
