@@ -5,8 +5,8 @@ import { publicEnv } from "@/lib/env";
 
 /** Per-request client acting as the signed-in staff member (or anon), via auth cookies. */
 export async function supabaseServer() {
+  const store = await cookies(); // first: marks the route as per-request before reading config
   const env = publicEnv();
-  const store = await cookies();
   return createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
     cookies: {
       getAll: () => store.getAll(),

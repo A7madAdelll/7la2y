@@ -23,3 +23,14 @@ describe("demo counter reducer (mirrors the DB rules)", () => {
     expect(w.waiting.at(-1)?.ticket_no).toBe(18);
   });
 });
+
+import { tvFromCounter } from "./tv-from-counter";
+
+describe("tvFromCounter (mirrors tv_board)", () => {
+  it("shows chairs and the next 5 ticket numbers, never names", () => {
+    const tv = tvFromCounter(sampleCounter());
+    expect(tv.barbers).toEqual([{ name: "محمد", serving_ticket: 12 }, { name: "كريم", serving_ticket: 11 }]);
+    expect(tv.next).toEqual([13, 14, 15, 16, 17]);
+    expect(JSON.stringify(tv)).not.toMatch(/أحمد|مصطفى|حسن/);
+  });
+});

@@ -71,3 +71,14 @@ export type CounterState = {
   barbers: CounterBarber[];
   waiting: CounterEntry[];
 };
+
+/** public.tv_board(token): what the waiting-room TV may show. Ticket numbers only, no names. */
+export type TvData = {
+  shop_id: string;
+  shop_name: string;
+  queue_open: boolean;
+  code: string;
+  expires_at: string;
+  barbers: { name: string; serving_ticket: number | null }[];
+  next: number[];
+};
