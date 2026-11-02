@@ -36,7 +36,15 @@ work as soon as these exist. Do them in order; each step says what it unblocks.
 ## 4. Meta WhatsApp (unblocks: the one opt-in alert)
 
 1. Meta Business account + WhatsApp Business app; start **business verification**.
-2. Submit the Arabic utility template (text in `docs/whatsapp-cost.md` / build plan). Approval can take days.
+2. WhatsApp Manager → Message templates → Create: category **Utility**, name `queue_near_turn`, language **Arabic (ar)**. Body (exactly two variables):
+
+   ```
+   دورك قرب في {{1}}! قدامك شخصين بس. رقمك {{2}}. ارجع المحل دلوقتي عشان متفوتكش.
+   ```
+   Sample values for review: `{{1}}` = صالون النيل, `{{2}}` = 14. Approval can take days; if rejected, reword and resubmit the same day.
+3. Vercel env: `WHATSAPP_TOKEN` (permanent system-user token), `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_TEMPLATE_NAME=queue_near_turn`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` (any random string), and `CRON_SECRET` (random).
+4. App → WhatsApp → Configuration → Webhook: URL `https://<site>/api/whatsapp/webhook`, verify token = `WHATSAPP_VERIFY_TOKEN`, subscribe to **messages**.
+5. Until all of this is set, the app simply sends nothing; alerts older than 30 minutes are closed unsent.
 
 ## 5. Later
 
