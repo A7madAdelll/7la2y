@@ -12,14 +12,10 @@ work as soon as these exist. Do them in order; each step says what it unblocks.
 5. Authentication → Email templates: optional, translate the magic-link email to Arabic.
 6. Settings → API: copy **Project URL** and **anon public key** into Vercel / `.env.local` (see `.env.example`). Copy the **service_role key** into Vercel only, marked sensitive. Never paste it in chat.
 
-### First shop (until the onboarding screen exists)
-1. Open `/login` on the deployed site, enter your email, open the link.
-2. Supabase SQL editor (staging): `select public.create_shop('my-shop', 'اسم المحل', '{men,kids}');` does not work there (no logged-in user), so instead run, replacing the email:
-   `insert into public.shops (slug, name, kinds) values ('my-shop', 'اسم المحل', '{men,kids}') returning id;` then
-   `insert into public.shop_secrets (shop_id) select id from public.shops where slug = 'my-shop';`
-   `insert into public.shop_members (shop_id, user_id, role) select s.id, u.id, 'owner' from public.shops s, auth.users u where s.slug = 'my-shop' and u.email = 'you@example.com';`
-   `select private.seed_default_services(id, kinds) from public.shops where slug = 'my-shop';`
-   (Claude will replace this with an onboarding screen.)
+### First shop
+Open `/login` on the deployed site, enter your email, open the link from the same phone, then
+`/onboarding` creates the shop (default services included). Set prices and barbers in
+`/settings/<shop>`; the counter is at `/counter`.
 
 ## 2. Cloudflare Turnstile (unblocks: the join form's bot check)
 
