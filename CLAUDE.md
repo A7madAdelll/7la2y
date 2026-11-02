@@ -5,6 +5,7 @@ Plan and decisions live in `docs/` — start with `docs/build-plan.md`. Ahmad su
 ## Product rules
 - Customers join **in the shop only** (QR + rotating presence code). No remote joining, no check-in step.
 - WhatsApp alert is **opt-in**, one message per entry, sent when 2 are ahead. Never more than one.
+- App is a **PWA** (installable, one codebase for counter + customer). Customers pick services (prices in EGP shown before joining); wait time = sum of service minutes.
 - Arabic-first, RTL, mobile-first (360 px). Egyptian phone format: `01` + 9 digits.
 
 ## Stack
