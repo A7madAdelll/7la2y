@@ -36,3 +36,14 @@ grant execute on function auth.uid() to anon, authenticated, service_role;
 alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
 alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
 alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
+
+-- Supabase Realtime's realtime.send(payload, event, topic, private). The test version records
+-- calls so tests can assert which pings were sent.
+create schema if not exists realtime;
+create table if not exists realtime.test_messages (
+  id bigserial primary key, topic text, event text, payload jsonb, private boolean,
+  sent_at timestamptz default clock_timestamp());
+create or replace function realtime.send(payload jsonb, event text, topic text, private boolean default true)
+returns void language sql as $$
+  insert into realtime.test_messages (topic, event, payload, private) values (topic, event, payload, private)
+$$;

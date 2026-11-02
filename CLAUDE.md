@@ -19,6 +19,9 @@ Next.js here has breaking changes: read `node_modules/next/dist/docs/` before us
 - Schema changes only through migration files in `supabase/migrations/`.
 - Supabase grants every new table/function in `public` to `anon`/`authenticated`. Each migration must enable RLS on new tables and `revoke` then `grant` exactly what is needed (pattern: `20261102000003_security.sql`). Helpers go in schema `private` (not exposed by the API).
 - SECURITY DEFINER functions: `set search_path = ''`, fully qualified names. Row locks use `for no key update`, never `for update` (FK key-share locks deadlock against it). Errors are stable keys (`bad_code`, `already_in_queue`, ...) via `private.fail()`; the app maps them to Arabic.
+- Customer joining is server-only: `join_queue` is granted to `service_role`; the server action does the bot check (Turnstile) and passes the client IP for DB rate limits. Never grant it to `anon`.
+- Live updates: DB triggers send a data-free `changed` ping on public Realtime topic `shop:<id>`; pages refetch what they may see. Never put customer data in a broadcast.
+- Manual account setup steps live in `docs/setup.md`; keep it current when code needs a new setting.
 - Every new logic path gets a test. CI (`lint`, `typecheck`, `test`, `build`) must pass before merge.
 - Work on a branch, small slices. Do not touch production Supabase from the agent; staging only.
 
