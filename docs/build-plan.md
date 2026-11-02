@@ -7,6 +7,32 @@ Estimated: **~3 weeks to a launch-ready pilot**, then Phase 2 after the pilot ga
 
 ---
 
+## Status (3 Nov 2026)
+
+Code for Phases 0–7 is built and tested; Phase 8 is prepared. Everything left needs accounts,
+people or decisions: see [launch-checklist.md](launch-checklist.md). PRs are stacked; merge in order.
+
+| Phase | Status | PR |
+|---|---|---|
+| 0 Foundations | Done (CI fixed) | #1, #3 |
+| 1 Data + security core | Done, tested on Postgres | #2 |
+| 2 Design system | Done; screens built from approved mockups | #4, #5 |
+| 3 Counter screen | Done: email login, live counter, TV link | #8 |
+| 4 Customer page | Done: join (bot check, rate limits), live ticket | #6, #7 |
+| 5 WhatsApp | Done: sender + webhook; waits for Meta template | #9 |
+| 6 Shop features | Done: onboarding, settings, QR poster, invites, admin | #10–#12 |
+| 7 Hardening | Done: privacy/retention, security pins + CSP, performance | #13–#15 |
+| 8 Launch | Prepared: browser tests in CI, k6 script, checklist | #16 |
+
+**Adjustments made while building** (Ahmad said to adjust the plan as needed):
+- Customer joining is server-only (found a gap: the public key could call it directly).
+- Live updates use one data-free broadcast per shop instead of per-page polling (cheaper at scale).
+- Reorder uses up/down buttons (reliable on every tablet and screen reader); drag can come later.
+- QR poster is a printable page, not a server PDF (correct Arabic shaping).
+- The Supabase client loads after the customer page renders (JS budget 150 KB met: 118–122 KB).
+- Not built yet, on purpose: no-show auto timer (needs Ahmad's decision), Sentry (needs an account;
+  server-only to protect the JS budget), women's booking mode (after the pilot, if wanted).
+
 ## Quality bar (definition of done for the whole product)
 
 | Area | Target |
