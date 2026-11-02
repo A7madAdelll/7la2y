@@ -24,3 +24,10 @@ export function formatPeople(count: number): string {
   if (count <= 10) return `${count} أشخاص`;
   return `${count} شخص`;
 }
+
+/** "2026-11-30" -> "30/11/2026" (day first, Western digits), safe inside right-to-left text. */
+export function formatDate(isoDate: string): string {
+  const [y, m, d] = isoDate.slice(0, 10).split("-");
+  if (!y || !m || !d) return isoDate;
+  return `\u2066${Number(d)}/${Number(m)}/${y}\u2069`; // isolate so RTL text never reorders it
+}

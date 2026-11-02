@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatEGP, formatMinutes, formatPeople } from "./format";
+import { formatDate, formatEGP, formatMinutes, formatPeople } from "./format";
 
 describe("format", () => {
   it("formats EGP with Western digits", () => {
@@ -21,4 +21,11 @@ describe("format", () => {
     [3, "3 أشخاص"],
     [12, "12 شخص"],
   ])("people %i -> %s", (n, s) => expect(formatPeople(n)).toBe(s));
+});
+
+describe("formatDate", () => {
+  it("day/month/year, isolated for right-to-left text", () => {
+    expect(formatDate("2026-11-30")).toBe("\u206630/11/2026\u2069");
+    expect(formatDate("2026-01-05T10:00:00Z")).toBe("\u20665/1/2026\u2069");
+  });
 });
