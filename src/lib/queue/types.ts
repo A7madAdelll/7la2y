@@ -35,6 +35,9 @@ export type EntryStatus = {
   estimated_minutes: number | null;
   services: { name: string; price_egp: number | null; minutes: number }[];
   wants_alert: boolean;
+  /** Set while serving: when they were called, and the shop's no-show limit. */
+  called_at?: string | null;
+  no_show_minutes?: number;
 };
 
 /** Input of public.join_queue(...) */
