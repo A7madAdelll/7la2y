@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Button, Chip, Notice, TextField, cn } from "@/components/ui";
 import { ERROR_MESSAGES, errorMessage } from "@/lib/errors";
@@ -153,7 +154,9 @@ export function JoinForm({ shop, onJoin }: Props) {
           </div>
         )}
         <Button type="submit" block disabled={busy}>{busy ? "لحظة…" : "احجز دوري"}</Button>
-        <p className="text-center text-xs text-ink-soft">رقمك بيستخدم للدور ده بس.</p>
+        <p className="text-center text-xs text-ink-soft">
+          رقمك بيستخدم للدور ده بس، وبيتمسح بعد 90 يوم من آخر زيارة. <Link href="/privacy" className="underline">الخصوصية</Link>
+        </p>
       </div>
     </form>
   );
