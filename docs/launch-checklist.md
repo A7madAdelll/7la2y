@@ -32,5 +32,5 @@ people. Order matters: each block unblocks the next.
 - [ ] Supabase production project (Pro plan for daily backups), same migrations
 - [ ] One real backup restore into staging
 - [ ] `NEXT_PUBLIC_SITE_URL` = real domain (QR posters must not point at preview URLs)
-- [ ] Sentry (not wired yet: choose server-only to keep the customer page budget)
+- [ ] Sentry: create a project (EU region), set `SENTRY_DSN` in Vercel. Code is wired (server-only).
 - [ ] One friendly shop for 2–3 days → fix issues → 5-shop pilot

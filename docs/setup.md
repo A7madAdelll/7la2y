@@ -47,6 +47,10 @@ Then `/admin` shows every shop, usage this month, and lets you record manual pay
 4. App → WhatsApp → Configuration → Webhook: URL `https://<site>/api/whatsapp/webhook`, verify token = `WHATSAPP_VERIFY_TOKEN`, subscribe to **messages**.
 5. Until all of this is set, the app simply sends nothing; alerts older than 30 minutes are closed unsent.
 
-## 5. Later
+## 5. Sentry (error alerts)
 
-Supabase production project (same steps, separate keys), Sentry, domain, backups check.
+sentry.io → new project (platform: Node.js, **EU data region**) → Settings → Client Keys → copy the DSN into Vercel `SENTRY_DSN`. Set an alert rule to email/phone you on new issues. Only server errors are sent; ticket/TV/invite links are masked.
+
+## 6. Later
+
+Supabase production project (same steps, separate keys), domain, backups check.

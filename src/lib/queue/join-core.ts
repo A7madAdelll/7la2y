@@ -58,6 +58,7 @@ export async function performJoin(
     if (key in ERROR_MESSAGES) return { ok: false, error: key };
     // Unexpected: log for us, never send internals to the browser.
     console.error("join_queue failed", e);
+    void import("@/lib/error-report").then((m) => m.reportError(e, { where: "join_queue" }));
     return { ok: false, error: "unknown" };
   }
 }

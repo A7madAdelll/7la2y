@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { hasBearer } from "@/lib/bearer";
+import { reportError } from "@/lib/error-report";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { whatsappConfig } from "@/lib/whatsapp/config";
 import { sendTemplate } from "@/lib/whatsapp/meta";
@@ -32,6 +33,10 @@ export async function GET(request: NextRequest) {
       if (error) console.error("complete_message failed", id, error.message);
     },
   });
-  if (result.failed > 0) console.warn("whatsapp outbox run had failures", result);
+  if (result.failed > 0) {
+    console.warn("whatsapp outbox run had failures", result);
+    // Every failed send is reported, so a spike (e.g. expired token) shows up in Sentry at once.
+    await reportError(new Error(`whatsapp: ${result.failed} of ${result.claimed} sends failed`), { where: "cron/whatsapp" });
+  }
   return NextResponse.json(result);
 }

@@ -31,8 +31,8 @@ people or decisions: see [launch-checklist.md](launch-checklist.md). PRs are sta
 - QR poster is a printable page, not a server PDF (correct Arabic shaping).
 - The Supabase client loads after the customer page renders (JS budget 150 KB met: 118–122 KB).
 - No-show: a per-shop limit shown to the called customer instead of an auto-cancel timer (an auto timer would flag every normal haircut, since "Next" seats directly).
-- Not built yet, on purpose: Sentry (needs an account;
-  server-only to protect the JS budget), women's booking mode (after the pilot, if wanted).
+- Error tracking: server-only Sentry via Next's onRequestError and a small envelope sender (no SDK in the browser; tokens masked). Needs only `SENTRY_DSN`.
+- Not built yet, on purpose: women's booking mode (after the pilot, if wanted).
 
 ## Quality bar (definition of done for the whole product)
 
