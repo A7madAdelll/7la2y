@@ -39,7 +39,7 @@ At EGP 100–200/month (convert at the current EGP/USD rate — check before use
 ## Decisions this forces
 
 1. **One alert, not two.** Send only "you're next / 2 ahead".
-2. **Alert only remote joiners.** People waiting inside see the live page and the TV display; they don't need WhatsApp.
+2. **Opt-in alerts only.** Everyone joins in the shop; only those who tick "message me when I'm close" get WhatsApp. The rest use the live page and the TV display.
 3. **Free channels first.** The customer web page shows live position at no cost; add browser push (free) as an option.
 4. **Use Meta Cloud API directly** — no BSP per-message markup. Budget time for Meta business verification.
 5. **Price on usage if needed:** e.g. Basic includes N alerts/month, overage billed. Set N from pilot data.

@@ -5,7 +5,7 @@ Each step feeds the next. See [review-summary.md](review-summary.md) for the rea
 ## Step 1 — Verify the cost risk (1–2 days)
 
 - [x] Check Meta's current WhatsApp Business pricing for Egypt — $0.0036/utility or service message (see [whatsapp-cost.md](whatsapp-cost.md)).
-- [x] Confirm the customer-initiated `wa.me` flow is free — **it isn't** since Oct 1, 2026. Design changes to one alert, remote joiners only.
+- [x] Confirm the customer-initiated `wa.me` flow is free — **it isn't** since Oct 1, 2026. Design changes to one opt-in alert; no remote joining (customers join in the shop with a presence code).
 - [ ] Confirm rates against Meta's official rate-card CSV, and whether 14% VAT applies.
 - [ ] Use Meta Cloud API directly (no BSP markup); note Meta business-verification time.
 - [ ] Get the current EGP/USD rate and compare cost to the EGP 100–200 price.
