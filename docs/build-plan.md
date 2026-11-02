@@ -154,3 +154,9 @@ Only if the pilot meets its success criterion:
 ## Monthly running cost (pilot)
 
 Vercel Pro ~$20 + Supabase Pro ~$25 + WhatsApp ~$7 for 5 shops + domain ≈ **$55/month**. Prices are from general knowledge — confirm before budgeting.
+
+---
+
+## Deferred: connectors (set up later, not blocking)
+
+Supabase, Vercel and Sentry connectors are postponed. Until connected, Claude writes SQL migrations as files in `supabase/migrations/` and Ahmad applies them (or connects Supabase staging when ready). Connect, in order: Supabase (staging only) before Phase 1 is applied, Vercel at first deploy, Sentry before Phase 7.
