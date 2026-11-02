@@ -5,3 +5,4 @@ export { cn } from "./cn";
 export { Notice } from "./notice";
 export { TextField } from "./text-field";
 export { Ticket } from "./ticket";
+export { Qr } from "./qr";

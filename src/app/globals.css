@@ -41,3 +41,21 @@ body {
   outline: 3px solid var(--color-brand);
   outline-offset: 2px;
 }
+
+/* Printing. The QR poster uses a named A5 page; everything else prints with browser defaults. */
+@page poster {
+  size: A5 portrait;
+  margin: 0;
+}
+.poster-sheet,
+body:has(.poster-sheet) {
+  page: poster;
+}
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { SettingsBoard, type SettingsBarber, type SettingsService, type SettingsShop } from "@/components/settings/settings-board";
-import { Notice } from "@/components/ui";
+import { LinksSection, type Staff } from "@/components/settings/links-section";
+import { Notice, Qr } from "@/components/ui";
+import { qrSvg } from "@/lib/qr";
+import { siteOrigin } from "@/lib/site-origin";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "إعدادات المحل — حلاقي", robots: { index: false } };
@@ -38,6 +41,12 @@ async function Settings({ params }: { params: PageProps<"/settings/[shopId]">["p
   if (member.data?.role !== "owner") {
     return <Notice>الإعدادات لصاحب المحل بس.</Notice>;
   }
+  const origin = await siteOrigin();
+  const shopUrl = `${origin}/${shop.data.slug}`;
+  const [svg, staff] = await Promise.all([
+    qrSvg(shopUrl),
+    supabase.rpc("shop_staff", { p_shop_id: shopId }),
+  ]);
   return (
     <>
       <header className="flex flex-wrap items-end justify-between gap-2">
@@ -49,8 +58,21 @@ async function Settings({ params }: { params: PageProps<"/settings/[shopId]">["p
           شاشة الكاشير
         </Link>
       </header>
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-bold">رابط المحل والـ QR</h2>
+        <div className="flex items-center gap-4 rounded-[var(--radius-card)] border-[1.5px] border-line bg-surface p-4">
+          <Qr svg={svg} label={`QR لرابط ${shopUrl}`} className="size-28 shrink-0" />
+          <div className="flex min-w-0 flex-col gap-2">
+            <code dir="ltr" className="text-sm break-all">{shopUrl}</code>
+            <Link href={`/settings/${shopId}/poster`} className="flex min-h-11 items-center justify-center rounded-[14px] border-[1.5px] border-brand px-4 font-bold text-brand hover:bg-brand-tint">
+              اطبع البوستر (A5)
+            </Link>
+          </div>
+        </div>
+      </section>
       <SettingsBoard shop={shop.data as SettingsShop} barbers={(barbers.data ?? []) as SettingsBarber[]}
         services={(services.data ?? []) as SettingsService[]} />
+      <LinksSection shopId={shopId} origin={origin} staff={(staff.data ?? []) as Staff[]} />
     </>
   );
 }

@@ -75,6 +75,7 @@ export type CounterState = {
 /** public.tv_board(token): what the waiting-room TV may show. Ticket numbers only, no names. */
 export type TvData = {
   shop_id: string;
+  slug?: string;
   shop_name: string;
   queue_open: boolean;
   code: string;

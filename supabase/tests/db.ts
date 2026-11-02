@@ -16,12 +16,12 @@ export const hasDb = Boolean(ADMIN_URL);
 
 export type Who =
   | { role: "anon" }
-  | { role: "authenticated"; uid: string }
+  | { role: "authenticated"; uid: string; email?: string }
   | { role: "service_role" } // our Next.js server
   | { role: "admin" }; // superuser, test setup only
 export const anon: Who = { role: "anon" };
 export const server: Who = { role: "service_role" };
-export const user = (uid: string): Who => ({ role: "authenticated", uid });
+export const user = (uid: string, email?: string): Who => ({ role: "authenticated", uid, email });
 
 export class TestDb {
   private constructor(
@@ -68,6 +68,9 @@ export class TestDb {
         await c.query(`set local role ${who.role}`);
         await c.query("select set_config('request.jwt.claim.sub', $1, true)", [
           who.role === "authenticated" ? who.uid : "",
+        ]);
+        await c.query("select set_config('request.jwt.claim.email', $1, true)", [
+          who.role === "authenticated" ? (who.email ?? "") : "",
         ]);
       }
       const result = await fn(c);

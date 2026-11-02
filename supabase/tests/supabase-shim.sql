@@ -28,7 +28,14 @@ language sql stable as $$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
 $$;
 
+-- Same contract as Supabase's auth.email(): the JWT "email" claim.
+create or replace function auth.email() returns text
+language sql stable as $$
+  select nullif(current_setting('request.jwt.claim.email', true), '')
+$$;
+
 grant usage on schema auth, extensions, public to anon, authenticated, service_role;
+grant execute on function auth.email() to anon, authenticated, service_role;
 grant execute on function auth.uid() to anon, authenticated, service_role;
 
 -- Supabase's default privileges: everything new in public is granted to the API roles.
