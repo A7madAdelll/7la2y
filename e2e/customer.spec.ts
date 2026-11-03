@@ -58,4 +58,16 @@ test.describe("customer: join and ticket", () => {
     await expect(page.getByText("ارجع خلال 10 دقايق")).toBeVisible();
     await expect(page.getByRole("button", { name: "اخرج من الدور" })).toHaveCount(0);
   });
+
+  test("hospitality: tea is offered, free, and does not count as a visit on its own", async ({ page }) => {
+    await page.goto("/demo/join");
+    await expect(page.getByRole("heading", { name: "ضيافة" })).toBeVisible();
+    await expect(page.getByRole("radio", { name: /شاي|قهوة/ })).toHaveCount(0); // never listed as a main service
+    await page.getByRole("button", { name: /شاي · ببلاش/ }).click();
+    await page.getByRole("button", { name: "احجز دوري" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "خدمة أساسية" })).toBeVisible();
+    // switching to kids keeps the tea
+    await page.getByRole("button", { name: "أطفال" }).click();
+    await expect(page.getByRole("button", { name: /شاي · ببلاش/ })).toHaveAttribute("aria-pressed", "true");
+  });
 });

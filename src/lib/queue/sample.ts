@@ -30,6 +30,8 @@ export const sampleShop: ShopPublic = {
     s("k1", "قصة أطفال", "kids", "main", 15),
     s("k2", "أول قصة", "kids", "main", 20),
     s("k3", "قصة + تحديد", "kids", "main", 20),
+    { id: "h1", name: "شاي", category: "men", kind: "hospitality", minutes: 0, price_egp: 0 },
+    { id: "h2", name: "قهوة", category: "men", kind: "hospitality", minutes: 0, price_egp: 15 },
   ],
 };
 

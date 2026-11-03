@@ -37,7 +37,11 @@ export function CounterBoard({ state, ...h }: { state: CounterState } & CounterH
           <span className="text-[13px] text-[#c9cdd2]">{state.waiting.length} مستنيين · {serving} في الكرسي</span>
         </div>
         <div className="ms-auto">
-          <PresenceCode code={state.presence.code} expiresAt={state.presence.expires_at} />
+          {state.shop.require_code === false ? (
+            <span className="rounded-[14px] bg-ink-raised px-4 py-2.5 text-sm text-[#c9cdd2]">الحجز من غير كود (من الإعدادات)</span>
+          ) : (
+            <PresenceCode code={state.presence.code} expiresAt={state.presence.expires_at} />
+          )}
         </div>
         <label className="flex min-h-11 cursor-pointer items-center gap-2.5 text-[15px]">
           <input type="checkbox" checked={state.shop.queue_open} onChange={h.onToggleOpen} className="size-[22px] accent-[#2ba39b]" />

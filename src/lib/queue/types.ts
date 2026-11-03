@@ -1,6 +1,6 @@
 // Shapes returned by the database functions in supabase/migrations (keep in sync).
 
-export type ServiceKind = "main" | "extra" | "package";
+export type ServiceKind = "main" | "extra" | "package" | "hospitality";
 export type Category = "men" | "women" | "kids";
 
 export type PublicService = {
@@ -18,6 +18,8 @@ export type ShopPublic = {
   name: string;
   kinds: Category[];
   queue_open: boolean;
+  /** false = the shop switched the rotating presence code off */
+  require_code?: boolean;
   waiting_count: number;
   barbers: { id: string; name: string }[];
   services: PublicService[];
@@ -69,7 +71,7 @@ export type CounterBarber = {
 };
 
 export type CounterState = {
-  shop: { id: string; name: string; queue_open: boolean };
+  shop: { id: string; name: string; queue_open: boolean; require_code?: boolean; no_show_minutes?: number };
   presence: { code: string; expires_at: string };
   barbers: CounterBarber[];
   waiting: CounterEntry[];

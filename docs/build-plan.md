@@ -24,6 +24,12 @@ people or decisions: see [launch-checklist.md](launch-checklist.md). PRs are sta
 | 7 Hardening | Done: privacy/retention, security pins + CSP, performance | #13–#15 |
 | 8 Launch | Prepared: browser tests in CI, k6 script, checklist | #16 |
 
+**Decisions, 4 Nov 2026 (Ahmad):**
+- Pricing: **1 EGP per haircut** (usage-based) instead of a flat subscription.
+- WhatsApp: optional **"confirm on WhatsApp"** (customer sends a prefilled message; we reply with the queue link and order). Chosen over an OTP: no code to copy, and the customer's own message proves the number.
+- A barber can run everything from his phone: full-screen code button; shops may switch the code off.
+- Owners add their own services, extras, packages and hospitality (tea, coffee).
+
 **Adjustments made while building** (Ahmad said to adjust the plan as needed):
 - Customer joining is server-only (found a gap: the public key could call it directly).
 - Live updates use one data-free broadcast per shop instead of per-page polling (cheaper at scale).
