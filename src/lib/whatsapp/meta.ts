@@ -43,6 +43,50 @@ export async function sendTemplate(
   }
 }
 
+/**
+ * Free-form text reply. Only allowed inside the 24 h window the customer opened by messaging us
+ * (the "confirm on WhatsApp" flow), so no template is needed.
+ */
+export async function sendText(
+  cfg: { token: string; phoneNumberId: string },
+  to: string,
+  body: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<SendResult> {
+  try {
+    const res = await fetchImpl(`${GRAPH}/${cfg.phoneNumberId}/messages`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${cfg.token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ messaging_product: "whatsapp", to: toInternational(to), type: "text", text: { body, preview_url: true } }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    const data = (await res.json().catch(() => ({}))) as { messages?: { id: string }[]; error?: { message?: string; code?: number } };
+    if (res.ok && data.messages?.[0]?.id) return { ok: true, id: data.messages[0].id };
+    return { ok: false, retry: res.status === 429 || res.status >= 500, error: `${res.status} ${data.error?.code ?? ""} ${data.error?.message ?? ""}`.trim() };
+  } catch (e) {
+    if (e instanceof Error && e.message === "invalid_phone") return { ok: false, retry: false, error: "invalid_phone" };
+    return { ok: false, retry: true, error: e instanceof Error ? e.name : "network" };
+  }
+}
+
+/** Incoming customer text messages from a webhook payload (sender in international format). */
+export function parseInbound(body: unknown): { from: string; text: string }[] {
+  const out: { from: string; text: string }[] = [];
+  const entries = (body as { entry?: unknown[] })?.entry;
+  if (!Array.isArray(entries)) return out;
+  for (const entry of entries) {
+    for (const change of (entry as { changes?: unknown[] })?.changes ?? []) {
+      const messages = (change as { value?: { messages?: unknown[] } })?.value?.messages ?? [];
+      for (const m of messages as { from?: unknown; type?: unknown; text?: { body?: unknown } }[]) {
+        if (typeof m.from === "string" && /^\d{8,15}$/.test(m.from) && m.type === "text" && typeof m.text?.body === "string") {
+          out.push({ from: m.from, text: m.text.body.slice(0, 500) });
+        }
+      }
+    }
+  }
+  return out;
+}
+
 /** Meta signs webhook bodies: X-Hub-Signature-256 = "sha256=" + HMAC-SHA256(app secret, raw body). */
 export function verifyMetaSignature(rawBody: string, header: string | null, appSecret: string): boolean {
   if (!header?.startsWith("sha256=")) return false;

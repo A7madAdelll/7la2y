@@ -19,9 +19,11 @@ type Props = {
   onLeave: () => Promise<void>;
   /** Calls public.forget_me(token): erases name and phone from this shop. */
   onForget?: () => Promise<void>;
+  /** "Confirm on WhatsApp": asks for a code and opens WhatsApp. Absent when WhatsApp is not set up. */
+  onConfirmWhatsApp?: () => Promise<void>;
 };
 
-export function EntryStatusView({ status, onLeave, onForget }: Props) {
+export function EntryStatusView({ status, onLeave, onForget, onConfirmWhatsApp }: Props) {
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const total = status.services.some((s) => s.price_egp === null)
@@ -77,6 +79,21 @@ export function EntryStatusView({ status, onLeave, onForget }: Props) {
           </div>
         )}
       </div>
+
+      {status.whatsapp_confirmed ? (
+        <Notice>اتأكد رقمك، وبعتنالك لينك دورك وطلبك على الواتساب.</Notice>
+      ) : (
+        onConfirmWhatsApp && !serving && (
+          <Card className="flex flex-col gap-3">
+            <span className="text-[15px] font-medium">عايز لينك دورك على الواتساب؟</span>
+            <span className="text-sm text-ink-soft">ابعت رسالة واحدة جاهزة من رقمك، ونردّ عليك باللينك وطلبك عشان ترجعله في أي وقت.</span>
+            <Button variant="outline" size="md"
+              onClick={async () => { try { await onConfirmWhatsApp(); } catch (e) { setError(errorMessage(e)); } }}>
+              أكّد على الواتساب
+            </Button>
+          </Card>
+        )
+      )}
 
       {!serving && status.wants_alert && (
         <Notice tone="warn">هنبعتلك واتساب لما يفضل قدامك {formatPeople(2)}. تقدر تخرج وترجع.</Notice>

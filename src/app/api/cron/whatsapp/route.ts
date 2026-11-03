@@ -3,8 +3,8 @@ import { hasBearer } from "@/lib/bearer";
 import { reportError } from "@/lib/error-report";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { whatsappConfig } from "@/lib/whatsapp/config";
-import { sendTemplate } from "@/lib/whatsapp/meta";
-import { runOutbox, type Claimed } from "@/lib/whatsapp/outbox";
+import { sendTemplate, sendText } from "@/lib/whatsapp/meta";
+import { publicOrigin, runOutbox, type Claimed } from "@/lib/whatsapp/outbox";
 
 /** Called every minute by Vercel Cron (vercel.json) with "Authorization: Bearer $CRON_SECRET". */
 export async function GET(request: NextRequest) {
@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
       if (error) throw new Error(`claim_messages: ${error.message}`);
       return (data ?? []) as Claimed[];
     },
-    send: (to, params) => sendTemplate(cfg, to, params),
+    sendTemplate: (to, params) => sendTemplate(cfg, to, params),
+    sendText: (to, body) => sendText(cfg, to, body),
+    origin: publicOrigin(),
     complete: async (id, r) => {
       const { error } = await db.rpc("complete_message", {
         p_id: id,

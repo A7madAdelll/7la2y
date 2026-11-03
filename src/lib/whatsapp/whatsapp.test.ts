@@ -1,7 +1,7 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
-import { parseStatuses, sendTemplate, toInternational, verifyMetaSignature } from "./meta";
-import { runOutbox } from "./outbox";
+import { parseInbound, parseStatuses, sendTemplate, sendText, toInternational, verifyMetaSignature } from "./meta";
+import { confirmText, publicOrigin, runOutbox } from "./outbox";
 
 const cfg = { token: "t", phoneNumberId: "123", template: "queue_near_turn", language: "ar" };
 const res = (status: number, body: unknown) => vi.fn(async () => ({ ok: status < 300, status, json: async () => body }) as Response);
@@ -51,20 +51,60 @@ describe("webhook", () => {
   });
 });
 
+describe("inbound messages and text replies", () => {
+  it("reads customers' text messages and ignores everything else", () => {
+    const body = { entry: [{ changes: [{ value: { messages: [
+      { from: "201012345678", type: "text", text: { body: "تأكيد دوري في صالون: K7Q2M9" } },
+      { from: "201012345678", type: "image", image: {} },
+      { from: "not-a-number", type: "text", text: { body: "x" } },
+    ], statuses: [{ id: "w", status: "read" }] } }] }] };
+    expect(parseInbound(body)).toEqual([{ from: "201012345678", text: "تأكيد دوري في صالون: K7Q2M9" }]);
+    expect(parseInbound(null)).toEqual([]);
+  });
+  it("sends a free-form text with link preview", async () => {
+    const f = res(200, { messages: [{ id: "wamid.t" }] });
+    expect(await sendText(cfg, "01012345678", "hi", f)).toEqual({ ok: true, id: "wamid.t" });
+    const body = JSON.parse((f.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
+    expect(body).toMatchObject({ to: "201012345678", type: "text", text: { body: "hi", preview_url: true } });
+  });
+});
+
 describe("runOutbox", () => {
-  it("sends each claimed alert with shop name and ticket, and reports every result", async () => {
-    const complete = vi.fn(async () => {});
-    const send = vi.fn(async (to: string) => (to === "01000000000" ? { ok: false as const, retry: true, error: "503" } : { ok: true as const, id: "w" }));
-    const r = await runOutbox({
-      claim: async () => [
-        { id: "a", phone: "01012345678", shop_name: "صالون", ticket_no: 14 },
-        { id: "b", phone: "01000000000", shop_name: "صالون", ticket_no: 15 },
-      ],
-      send,
-      complete,
-    });
-    expect(r).toEqual({ claimed: 2, sent: 1, failed: 1 });
-    expect(send).toHaveBeenCalledWith("01012345678", ["صالون", "14"]);
-    expect(complete).toHaveBeenCalledTimes(2);
+  const base = { id: "a", phone: "01012345678", shop_name: "صالون", ticket_no: 14, payload: null, services: [] as string[] };
+  const deps = (over = {}) => ({
+    claim: async () => [] as never[],
+    sendTemplate: vi.fn(async () => ({ ok: true as const, id: "t" })),
+    sendText: vi.fn(async () => ({ ok: true as const, id: "x" })),
+    complete: vi.fn(async () => {}),
+    origin: "https://7la2y.example",
+    ...over,
+  });
+
+  it("near-turn alerts use the template with shop and ticket", async () => {
+    const d = deps({ claim: async () => [{ ...base, kind: "near_turn" as const }] });
+    expect(await runOutbox(d)).toEqual({ claimed: 1, sent: 1, failed: 0 });
+    expect(d.sendTemplate).toHaveBeenCalledWith("01012345678", ["صالون", "14"]);
+    expect(d.sendText).not.toHaveBeenCalled();
+  });
+
+  it("confirm replies are free-form text with ticket, order and the queue link", async () => {
+    const d = deps({ claim: async () => [{ ...base, kind: "confirm" as const, payload: { token: "abc" }, services: ["قصة شعر", "شاي"] }] });
+    await runOutbox(d);
+    const [to, text] = (d.sendText.mock.calls[0] as unknown as [string, string]);
+    expect(to).toBe("01012345678");
+    expect(text).toBe("تم تأكيد رقمك في صالون.\nرقمك في الدور: 14\nطلبك: قصة شعر + شاي\nتابع دورك من هنا: https://7la2y.example/t/abc");
+  });
+
+  it("without a public site URL the confirm reply is not sent (no broken link)", async () => {
+    const d = deps({ origin: null, claim: async () => [{ ...base, kind: "confirm" as const, payload: { token: "abc" } }] });
+    expect(await runOutbox(d)).toEqual({ claimed: 1, sent: 0, failed: 1 });
+    expect(d.complete).toHaveBeenCalledWith("a", { ok: false, retry: false, error: "no_site_url" });
+  });
+
+  it("links point at the fixed site URL, else Vercel's production domain", () => {
+    expect(publicOrigin({ NEXT_PUBLIC_SITE_URL: "https://7la2y.com/" })).toBe("https://7la2y.com");
+    expect(publicOrigin({ VERCEL_PROJECT_PRODUCTION_URL: "7la2y.vercel.app" })).toBe("https://7la2y.vercel.app");
+    expect(publicOrigin({})).toBeNull();
+    expect(confirmText({ shop_name: "س", ticket_no: 1, services: [] }, "L")).not.toContain("طلبك");
   });
 });

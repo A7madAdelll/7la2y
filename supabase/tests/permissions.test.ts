@@ -4,7 +4,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { TestDb, hasDb } from "./db";
 
-const ANON_FUNCTIONS = ["entry_status", "forget_me", "leave_queue", "shop_public", "tv_board"];
+const ANON_FUNCTIONS = ["entry_status", "forget_me", "leave_queue", "request_whatsapp_confirm", "shop_public", "tv_board"];
 const STAFF_FUNCTIONS = [
   ...ANON_FUNCTIONS,
   "accept_invite", "admin_record_payment", "admin_shops", "alerts_per_month", "counter_state",
@@ -12,7 +12,7 @@ const STAFF_FUNCTIONS = [
   "queue_reorder", "remove_cashier", "rotate_tv_link", "set_barber_on_duty", "set_queue_open",
   "shop_staff", "staff_add_walk_in", "staff_presence_code",
 ].sort();
-const SERVER_FUNCTIONS = ["claim_messages", "complete_message", "join_queue", "purge_personal_data", "record_message_status"];
+const SERVER_FUNCTIONS = ["claim_messages", "complete_message", "confirm_whatsapp", "join_queue", "purge_personal_data", "record_message_status"];
 
 describe.skipIf(!hasDb)("API surface (permissions allowlist)", () => {
   let db: TestDb;

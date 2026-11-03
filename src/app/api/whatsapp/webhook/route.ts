@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { parseStatuses, verifyMetaSignature } from "@/lib/whatsapp/meta";
+import { parseInbound, parseStatuses, verifyMetaSignature } from "@/lib/whatsapp/meta";
 
 /** Meta's one-time subscription check: echo hub.challenge if hub.verify_token matches ours. */
 export async function GET(request: NextRequest) {
@@ -31,6 +31,11 @@ export async function POST(request: NextRequest) {
   for (const u of parseStatuses(body)) {
     const { error } = await db.rpc("record_message_status", { p_provider_message_id: u.id, p_status: u.status, p_error: u.error ?? null });
     if (error) console.error("record_message_status failed", error.message);
+  }
+  // Customers' "confirm on WhatsApp" messages: the DB matches the code AND the sender's number.
+  for (const m of parseInbound(body)) {
+    const { error } = await db.rpc("confirm_whatsapp", { p_from: m.from, p_text: m.text });
+    if (error) console.error("confirm_whatsapp failed", error.message);
   }
   return NextResponse.json({ ok: true }); // always 200 once verified, so Meta does not retry forever
 }

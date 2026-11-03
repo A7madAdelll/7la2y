@@ -70,4 +70,11 @@ test.describe("customer: join and ticket", () => {
     await page.getByRole("button", { name: "أطفال" }).click();
     await expect(page.getByRole("button", { name: /شاي · ببلاش/ })).toHaveAttribute("aria-pressed", "true");
   });
+
+  test("confirm on WhatsApp: offered while waiting, then shows the confirmation", async ({ page }) => {
+    await page.goto("/demo/status");
+    await page.getByRole("button", { name: "أكّد على الواتساب" }).click();
+    await expect(page.getByText("اتأكد رقمك")).toBeVisible();
+    await expect(page.getByRole("button", { name: "أكّد على الواتساب" })).toHaveCount(0);
+  });
 });
