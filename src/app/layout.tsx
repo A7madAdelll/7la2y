@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 
@@ -11,6 +11,13 @@ const plex = IBM_Plex_Sans_Arabic({
 export const metadata: Metadata = {
   title: "حلاقي — طابور الحلاقة",
   description: "احجز دورك في الحلاق من غير ما تستنى واقف.",
+  appleWebApp: { capable: true, title: "حلاقي", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#15202b",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

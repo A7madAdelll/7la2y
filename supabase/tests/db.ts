@@ -14,9 +14,14 @@ if (!ADMIN_URL && process.env.REQUIRE_DB_TESTS) {
 }
 export const hasDb = Boolean(ADMIN_URL);
 
-export type Who = { role: "anon" } | { role: "authenticated"; uid: string } | { role: "admin" };
+export type Who =
+  | { role: "anon" }
+  | { role: "authenticated"; uid: string; email?: string }
+  | { role: "service_role" } // our Next.js server
+  | { role: "admin" }; // superuser, test setup only
 export const anon: Who = { role: "anon" };
-export const user = (uid: string): Who => ({ role: "authenticated", uid });
+export const server: Who = { role: "service_role" };
+export const user = (uid: string, email?: string): Who => ({ role: "authenticated", uid, email });
 
 export class TestDb {
   private constructor(
@@ -63,6 +68,9 @@ export class TestDb {
         await c.query(`set local role ${who.role}`);
         await c.query("select set_config('request.jwt.claim.sub', $1, true)", [
           who.role === "authenticated" ? who.uid : "",
+        ]);
+        await c.query("select set_config('request.jwt.claim.email', $1, true)", [
+          who.role === "authenticated" ? (who.email ?? "") : "",
         ]);
       }
       const result = await fn(c);
@@ -127,15 +135,24 @@ let phoneSeq = 0;
 /** Unique valid Egyptian mobile per call. */
 export const nextPhone = () => `010${String(10_000_000 + ++phoneSeq).slice(-8)}`;
 
-export async function join(
-  db: TestDb,
-  shop: Shop,
-  o: { phone?: string; barberId?: string | null; services?: string[]; alert?: boolean; code?: string; name?: string } = {},
-) {
-  return db.rpc<{ entry_id: string; ticket_no: number; token: string; wants_alert: boolean }>(
-    anon,
+export type JoinOptions = {
+  phone?: string;
+  barberId?: string | null;
+  services?: string[];
+  alert?: boolean;
+  code?: string;
+  name?: string;
+  /** Client IP the server would pass. Default: unique per call, so rate limits never trip by accident. */
+  clientKey?: string;
+};
+
+/** Raw join_queue result: soft errors (bad_code, rate_limited) come back as { error }. */
+export async function joinRaw(db: TestDb, shop: Shop, o: JoinOptions = {}) {
+  return db.rpc<{ entry_id: string; ticket_no: number; token: string; wants_alert: boolean; error?: string }>(
+    server,
     "join_queue",
     [
+      o.clientKey ?? `ip-${randomBytes(4).toString("hex")}`,
       shop.slug,
       o.code ?? (await shop.code()),
       o.name ?? "أحمد",
@@ -145,6 +162,13 @@ export async function join(
       o.alert ?? false,
     ],
   );
+}
+
+/** join_queue that throws soft errors too, so every failure reads the same in tests. */
+export async function join(db: TestDb, shop: Shop, o: JoinOptions = {}) {
+  const r = await joinRaw(db, shop, o);
+  if (r.error) throw new Error(r.error);
+  return r;
 }
 
 /** Expect a promise to fail with one of our error keys (or a Postgres error message fragment). */

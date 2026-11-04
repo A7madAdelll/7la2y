@@ -1,26 +1,61 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * حلاقي design tokens (Phase 2). Light theme first; every text/background pair used
+ * in components meets WCAG AA (4.5:1). Change colors here, never inline in components.
+ */
+@theme {
+  --font-sans: var(--font-plex), "IBM Plex Sans Arabic", system-ui, sans-serif;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-paper: #f5f3ee;       /* page background */
+  --color-surface: #ffffff;     /* cards, inputs */
+  --color-sunken: #e7e4dc;      /* segmented control track, subtle wells */
+  --color-line: #e1ded6;        /* card borders, dividers */
+  --color-line-strong: #c9cdd2; /* input borders */
+  --color-ink: #15202b;         /* primary text, dark header */
+  --color-ink-soft: #4a535c;    /* secondary text (7.4:1 on paper) */
+  --color-ink-raised: #22303d;  /* panels on the dark header / TV */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-brand: #0b6b6b;       /* primary actions (6.0:1 with white) */
+  --color-brand-strong: #084f4f;
+  --color-brand-tint: #e3f0ef;  /* selected state background */
+
+  --color-warn: #8a3f06;        /* "near your turn", WhatsApp notes */
+  --color-warn-tint: #fff4e8;
+  --color-warn-line: #e8c9a6;
+
+  --color-danger: #a12a1e;      /* leave queue, errors (6.6:1 on paper) */
+  --color-danger-tint: #fdecea;
+
+  --radius-control: 12px;
+  --radius-card: 16px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 3px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* Printing. The QR poster uses a named A5 page; everything else prints with browser defaults. */
+@page poster {
+  size: A5 portrait;
+  margin: 0;
+}
+.poster-sheet,
+body:has(.poster-sheet) {
+  page: poster;
+}
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
 }
