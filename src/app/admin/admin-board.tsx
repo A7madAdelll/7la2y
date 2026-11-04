@@ -4,13 +4,14 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Notice, TextField, cn } from "@/components/ui";
 import { errorMessage } from "@/lib/errors";
+import { amountDue, PRICE_PER_HAIRCUT_EGP } from "@/lib/billing";
 import { formatDate, formatEGP } from "@/lib/format";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 
 export type AdminShop = {
   id: string; name: string; slug: string; created_at: string; owner_email: string | null;
   sub_status: string | null; sub_plan: string | null; paid_until: string | null;
-  visits_this_month: number; alerts_this_month: number;
+  visits_this_month: number; alerts_this_month: number; haircuts_this_month: number;
 };
 
 const METHODS = [
@@ -48,9 +49,12 @@ export function AdminBoard({ shops, today }: { shops: AdminShop[]; today: string
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-3 gap-3">
         <Card className="flex flex-col"><span className="text-sm text-ink-soft">محلات</span><span className="text-2xl font-bold">{shops.length}</span></Card>
-        <Card className="flex flex-col"><span className="text-sm text-ink-soft">مدفوع</span><span className="text-2xl font-bold">{paid}</span></Card>
+        <Card className="flex flex-col"><span className="text-sm text-ink-soft">مستحق الشهر</span><span className="text-2xl font-bold">{formatEGP(amountDue(shops.reduce((a, s) => a + Number(s.haircuts_this_month), 0)))}</span></Card>
         <Card className="flex flex-col"><span className="text-sm text-ink-soft">رسايل الشهر</span><span className="text-2xl font-bold">{shops.reduce((a, s) => a + Number(s.alerts_this_month), 0)}</span></Card>
       </div>
+      <p className="text-sm text-ink-soft">
+        السعر: {formatEGP(PRICE_PER_HAIRCUT_EGP)} على كل حلاقة خلصت. اللي مجاش أو خرج من الدور مش بيتحسب. {paid} محل مسجل ليه دفعة سارية.
+      </p>
       <TextField label="دور على محل" placeholder="الاسم أو الرابط أو الإيميل" value={q} onChange={(e) => setQ(e.target.value)} />
       {shown.map((s) => {
         const st = statusLabel(s, today);
@@ -63,7 +67,10 @@ export function AdminBoard({ shops, today }: { shops: AdminShop[]; today: string
               </span>
               <span className={cn("rounded-full px-2.5 py-1 text-[13px]", st.tone)}>{st.text}</span>
             </div>
-            <span className="text-sm text-ink-soft">الشهر ده: {s.visits_this_month} زيارة · {s.alerts_this_month} رسالة واتساب</span>
+            <span className="text-sm text-ink-soft">
+              الشهر ده: {s.haircuts_this_month} حلاقة خلصت (من {s.visits_this_month} حجز) · {s.alerts_this_month} رسالة واتساب
+            </span>
+            <span className="font-bold">المستحق: {formatEGP(amountDue(Number(s.haircuts_this_month)))}</span>
             {paying === s.id ? (
               <PaymentForm shopId={s.id} today={today} onDone={() => setPaying(null)} />
             ) : (

@@ -1,6 +1,6 @@
 // Platform admin: only platform_admins rows; sees every shop; records manual payments.
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { TestDb, errorOf, hasDb, join, user } from "./db";
+import { TestDb, anon, errorOf, hasDb, join, user } from "./db";
 
 describe.skipIf(!hasDb)("platform admin", () => {
   let db: TestDb;
@@ -49,5 +49,20 @@ describe.skipIf(!hasDb)("platform admin", () => {
     expect(await errorOf(db.rpc(user(admin), "admin_record_payment", [s.shopId, "basic", -1, "instapay", "2026-11-01", "2026-11-30", null]))).toBe("invalid_payment");
     expect(await errorOf(db.rpc(user(admin), "admin_record_payment", [s.shopId, "basic", 300, "bitcoin", "2026-11-01", "2026-11-30", null]))).toBe("invalid_payment");
     expect(await errorOf(db.rpc(user(admin), "admin_record_payment", [s.shopId, "basic", 300, "cash", "2026-11-30", "2026-11-01", null]))).toBe("invalid_payment");
+  });
+
+  it("bills only finished haircuts this month (not no-shows or people who left)", async () => {
+    const s = await db.createShop();
+    const a = await join(db, s);
+    const b = await join(db, s);
+    const c = await join(db, s);
+    const barber = s.barberIds[0];
+    await db.rpc(user(s.owner), "queue_next", [barber, null]); // a in chair
+    await db.rpc(user(s.owner), "queue_next", [barber, a.entry_id]); // a done, b in chair
+    await db.rpc(user(s.owner), "queue_no_show", [b.entry_id]); // b no-show
+    await db.rpc(anon, "leave_queue", [c.token]); // c left
+    const row = (await shops(admin)).find((r) => r.id === s.shopId);
+    expect(Number(row.haircuts_this_month)).toBe(1);
+    expect(Number(row.visits_this_month)).toBe(3);
   });
 });
