@@ -6,6 +6,7 @@ const SCREENS = [
   ["/demo/counter", "الكاشير: شاشة التحكم"],
   ["/demo/tv", "شاشة التلفزيون"],
   ["/demo/poster", "بوستر الـ QR للطباعة"],
+  ["/demo/admin", "لوحة الإدارة"],
   ["/ui-kit", "مكونات التصميم"],
 ] as const;
 

@@ -17,6 +17,11 @@ Open `/login` on the deployed site, enter your email, open the link from the sam
 `/onboarding` creates the shop (default services included). Set prices and barbers in
 `/settings/<shop>`; the counter is at `/counter`.
 
+### Make yourself the platform admin (once)
+After your first login, in the Supabase SQL editor (staging, later production):
+`insert into public.platform_admins (user_id) select id from auth.users where email = 'you@example.com';`
+Then `/admin` shows every shop, usage this month, and lets you record manual payments.
+
 ## 2. Cloudflare Turnstile (unblocks: the join form's bot check)
 
 1. dash.cloudflare.com → Turnstile → Add site → domain of the app, mode **Managed**.
