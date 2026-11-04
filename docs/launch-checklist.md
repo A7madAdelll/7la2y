@@ -18,7 +18,7 @@ people. Order matters: each block unblocks the next.
 
 ## C. Product decisions (Ahmad)
 - [ ] Women's salons later as booking mode? (recommended)
-- [ ] No-show time limit (suggested 10 min per-shop setting; not built yet)
+- [x] No-show limit: per-shop setting (default 10 min) shown to the called customer; cashier presses «مجاش» (no auto-cancel: "Next" seats directly, so a timer would flag every haircut)
 - [ ] Unpaid shops: show only (current) or block after N days?
 - [ ] Retention 90 days OK? (`RETENTION_DAYS`)
 - [ ] Look approved (mockups / `/demo`)

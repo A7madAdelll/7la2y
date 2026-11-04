@@ -7,7 +7,7 @@ import { errorMessage } from "@/lib/errors";
 import type { Category } from "@/lib/queue/types";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 
-export type SettingsShop = { id: string; name: string; slug: string; kinds: Category[]; queue_open: boolean };
+export type SettingsShop = { id: string; name: string; slug: string; kinds: Category[]; queue_open: boolean; no_show_minutes: number };
 export type SettingsBarber = { id: string; name: string; active: boolean; on_duty: boolean };
 export type SettingsService = {
   id: string; name: string; category: Category; kind: "main" | "extra" | "package";
@@ -57,6 +57,21 @@ export function SettingsBoard({ shop, barbers, services }: { shop: SettingsShop;
           }}>
           {shop.queue_open ? "اقفل الطابور" : "افتح الطابور"}
         </Button>
+      </Card>
+
+      <Card className="flex flex-col gap-2">
+        <label htmlFor="no-show" className="text-lg font-bold">مهلة الرجوع بعد النداء</label>
+        <p className="text-sm text-ink-soft">الزبون اللي برا المحل هيشوف الرقم ده لما يتنده عليه. بعدها تقدر تدوس «مجاش».</p>
+        <div className="flex items-center gap-2">
+          <input id="no-show" type="number" inputMode="numeric" min={3} max={60} dir="ltr" defaultValue={shop.no_show_minutes}
+            onBlur={(e) => {
+              const v = Number(e.target.value);
+              if (v !== shop.no_show_minutes && Number.isInteger(v) && v >= 3 && v <= 60) void save("shops", shop.id, { no_show_minutes: v });
+              else if (v < 3 || v > 60) setError("المهلة من 3 لـ 60 دقيقة.");
+            }}
+            className="min-h-11 w-24 rounded-[var(--radius-control)] border-[1.5px] border-line-strong px-3 text-right" />
+          <span>دقيقة</span>
+        </div>
       </Card>
 
       <BarbersSection shopId={shop.id} barbers={barbers} save={save} onError={setError} />

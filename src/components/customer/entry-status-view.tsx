@@ -56,7 +56,14 @@ export function EntryStatusView({ status, onLeave, onForget }: Props) {
         <Ticket number={status.ticket_no} label={serving ? "دورك دلوقتي!" : "رقمك"}
           className={serving ? "bg-brand" : undefined} />
         {serving ? (
-          <Notice>اتفضل عند {status.barber_name ?? "الحلاق"}.</Notice>
+          <>
+            <Notice>اتفضل عند {status.barber_name ?? "الحلاق"}.</Notice>
+            {status.no_show_minutes ? (
+              <Notice tone="warn">
+                لو مش في المحل، ارجع خلال {formatMinutes(status.no_show_minutes)} وإلا ممكن دورك يروح.
+              </Notice>
+            ) : null}
+          </>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             <Card className="flex flex-col gap-1">

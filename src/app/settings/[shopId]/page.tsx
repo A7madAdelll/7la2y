@@ -32,7 +32,7 @@ async function Settings({ params }: { params: PageProps<"/settings/[shopId]">["p
 
   // RLS returns nothing for shops this account is not a member of.
   const [shop, member, barbers, services] = await Promise.all([
-    supabase.from("shops").select("id, name, slug, kinds, queue_open").eq("id", shopId).maybeSingle(),
+    supabase.from("shops").select("id, name, slug, kinds, queue_open, no_show_minutes").eq("id", shopId).maybeSingle(),
     supabase.from("shop_members").select("role").eq("shop_id", shopId).eq("user_id", auth.user.id).maybeSingle(),
     supabase.from("barbers").select("id, name, active, on_duty").eq("shop_id", shopId).order("sort").order("created_at"),
     supabase.from("services").select("id, name, category, kind, price_egp, minutes, active").eq("shop_id", shopId).order("sort"),

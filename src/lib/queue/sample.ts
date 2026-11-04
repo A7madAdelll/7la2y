@@ -45,6 +45,7 @@ export const sampleStatus: EntryStatus = {
     { name: "فوطة سخنة", price_egp: null, minutes: 10 },
   ],
   wants_alert: true,
+  no_show_minutes: 10,
 };
 
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();

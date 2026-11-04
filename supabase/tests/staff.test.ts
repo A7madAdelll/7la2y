@@ -69,3 +69,35 @@ describe.skipIf(!hasDb)("staff screens", () => {
     expect(await errorOf(db.rpc(user(cashier), "rotate_tv_link", [s.shopId]))).toBe("forbidden");
   });
 });
+
+describe.skipIf(!hasDb)("no-show hint", () => {
+  let db: TestDb;
+  beforeAll(async () => {
+    db = await TestDb.create();
+  });
+  afterAll(async () => {
+    await db?.drop();
+  });
+
+  it("owner sets the limit; counter and the customer's page both see it", async () => {
+    const s = await db.createShop();
+    await db.as(user(s.owner), (c) => c.query("update public.shops set no_show_minutes = 15 where id = $1", [s.shopId]));
+    const me = await join(db, s);
+    await db.rpc(user(s.owner), "queue_next", [s.barberIds[0], null]);
+
+    const c = await db.rpc<{ shop: { no_show_minutes: number } }>(user(s.owner), "counter_state", [s.shopId]);
+    expect(c.shop.no_show_minutes).toBe(15);
+    const st = await db.rpc<{ status: string; called_at: string | null; no_show_minutes: number }>(anon, "entry_status", [me.token]);
+    expect(st).toMatchObject({ status: "serving", no_show_minutes: 15 });
+    expect(st.called_at).toBeTruthy();
+  });
+
+  it("limit stays between 3 and 60 minutes; cashiers cannot change it", async () => {
+    const s = await db.createShop();
+    expect(await errorOf(db.as(user(s.owner), (c) => c.query("update public.shops set no_show_minutes = 1 where id = $1", [s.shopId])))).toMatch(/check constraint/);
+    const cashier = await db.createUser();
+    await db.pool.query("insert into public.shop_members (shop_id, user_id, role) values ($1, $2, 'cashier')", [s.shopId, cashier]);
+    const r = await db.as(user(cashier), (c) => c.query("update public.shops set no_show_minutes = 30 where id = $1", [s.shopId]));
+    expect(r.rowCount).toBe(0);
+  });
+});

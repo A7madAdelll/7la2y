@@ -50,4 +50,12 @@ test.describe("customer: join and ticket", () => {
     await page.getByRole("button", { name: "امسح بياناتي" }).click();
     await expect(page.getByText("اتمسح اسمك ورقمك")).toBeVisible();
   });
+
+  test("when called, the customer sees the shop's limit to come back", async ({ page }) => {
+    await page.goto("/demo/status");
+    await page.getByRole("button", { name: "تجربة: اتنده عليا" }).click();
+    await expect(page.getByText("دورك دلوقتي!")).toBeVisible();
+    await expect(page.getByText("ارجع خلال 10 دقايق")).toBeVisible();
+    await expect(page.getByRole("button", { name: "اخرج من الدور" })).toHaveCount(0);
+  });
 });
