@@ -8,17 +8,18 @@ export type JoinFieldErrors = Partial<Record<"name" | "phone" | "code" | "servic
  * Instant feedback in the browser, with the same rules the database enforces.
  * The database still re-validates everything; this only saves a round trip.
  */
-export function validateJoin(input: JoinInput, services: PublicService[]): JoinFieldErrors {
+export function validateJoin(input: JoinInput, services: PublicService[], requireCode = true): JoinFieldErrors {
   const errors: JoinFieldErrors = {};
   const name = input.name.trim();
   if (name.length < 1 || name.length > 60) errors.name = "invalid_name";
   if (!isEgyptianMobile(normalizeEgyptianPhone(input.phone))) errors.phone = "invalid_phone";
-  if (!/^\d{4}$/.test(normalizeEgyptianPhone(input.code))) errors.code = "bad_code";
+  if (requireCode && !/^\d{4}$/.test(normalizeEgyptianPhone(input.code))) errors.code = "bad_code";
 
   const chosen = services.filter((s) => input.serviceIds.includes(s.id));
   if (chosen.length === 0) errors.services = "service_required";
   else if (chosen.length > 10) errors.services = "too_many_services";
-  else if (!chosen.some((s) => s.kind !== "extra")) errors.services = "main_service_required";
+  // Only a haircut / shave / package makes a visit: extras and hospitality (tea) alone do not.
+  else if (!chosen.some((s) => s.kind === "main" || s.kind === "package")) errors.services = "main_service_required";
   return errors;
 }
 

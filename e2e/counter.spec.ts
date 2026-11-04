@@ -31,4 +31,14 @@ test.describe("counter screen", () => {
     await expect(page.locator("ol li")).toHaveText(["13", "14", "15", "16", "17"]);
     await expect(page.locator("body")).not.toContainText("مصطفى");
   });
+
+  test("tapping the code shows it full screen for the customer, and back closes it", async ({ page }) => {
+    await page.goto("/demo/counter");
+    await page.getByRole("button", { name: /كود الدخول 4827/ }).click();
+    const dialog = page.getByRole("dialog", { name: "كود الدخول" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText("4827")).toBeVisible();
+    await dialog.getByRole("button", { name: "رجوع" }).click();
+    await expect(dialog).toHaveCount(0);
+  });
 });

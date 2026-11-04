@@ -30,8 +30,11 @@ export function JoinForm({ shop, onJoin }: Props) {
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const mains = shop.services.filter((s) => s.category === category && s.kind !== "extra");
+  const mains = shop.services.filter((s) => s.category === category && (s.kind === "main" || s.kind === "package"));
   const extras = shop.services.filter((s) => s.category === category && s.kind === "extra");
+  // Tea / coffee / water: offered with any category, never lengthens the wait.
+  const hospitality = shop.services.filter((s) => s.kind === "hospitality");
+  const requireCode = shop.require_code !== false;
   const serviceIds = useMemo(() => (mainId ? [mainId, ...extraIds] : extraIds), [mainId, extraIds]);
   const total = summarize(serviceIds, shop.services);
 
@@ -46,7 +49,7 @@ export function JoinForm({ shop, onJoin }: Props) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const input: JoinInput = { name, phone, code, barberId, serviceIds, wantsAlert };
-    const found = validateJoin(input, shop.services);
+    const found = validateJoin(input, shop.services, requireCode);
     setErrors(found);
     setFormError(null);
     if (Object.keys(found).length > 0) return;
@@ -78,7 +81,7 @@ export function JoinForm({ shop, onJoin }: Props) {
           <div className="grid grid-cols-2 rounded-[var(--radius-control)] bg-sunken p-1">
             {categories.map((c) => (
               <button key={c} type="button" aria-pressed={category === c}
-                onClick={() => { setCategory(c); setMainId(null); setExtraIds([]); }}
+                onClick={() => { setCategory(c); setMainId(null); setExtraIds((ids) => ids.filter((id) => hospitality.some((h) => h.id === id))); }}
                 className={cn("min-h-11 cursor-pointer rounded-[9px] text-[15px] font-medium",
                   category === c ? "bg-surface text-ink" : "text-ink-soft")}>
                 {CATEGORY_LABEL[c]}
@@ -115,6 +118,19 @@ export function JoinForm({ shop, onJoin }: Props) {
             </div>
           </>
         )}
+        {hospitality.length > 0 && (
+          <>
+            <h3 className="mt-1 text-[15px] font-medium">ضيافة</h3>
+            <div className="flex flex-wrap gap-2">
+              {hospitality.map((s) => (
+                <Chip key={s.id} selected={extraIds.includes(s.id)}
+                  onClick={() => setExtraIds((ids) => (ids.includes(s.id) ? ids.filter((x) => x !== s.id) : [...ids, s.id]))}>
+                  {s.name}{s.price_egp ? ` · ${formatEGP(s.price_egp)}` : s.price_egp === 0 ? " · ببلاش" : ""}
+                </Chip>
+              ))}
+            </div>
+          </>
+        )}
         {errors.services && <p role="alert" className="text-sm text-danger">{ERROR_MESSAGES[errors.services]}</p>}
       </fieldset>
 
@@ -130,10 +146,12 @@ export function JoinForm({ shop, onJoin }: Props) {
         </fieldset>
       )}
 
-      <TextField label="كود المحل" inputMode="numeric" autoComplete="off" dir="ltr" maxLength={4}
-        placeholder="• • • •" className="text-center text-[28px] tracking-[14px]" value={code}
-        onChange={(e) => setCode(e.target.value)} error={msg(errors.code)}
-        hint="مكتوب على شاشة الكاشير والتلفزيون جوه المحل." />
+      {requireCode && (
+        <TextField label="كود المحل" inputMode="numeric" autoComplete="off" dir="ltr" maxLength={4}
+          placeholder="• • • •" className="text-center text-[28px] tracking-[14px]" value={code}
+          onChange={(e) => setCode(e.target.value)} error={msg(errors.code)}
+          hint="مكتوب على شاشة الكاشير والتلفزيون جوه المحل." />
+      )}
 
       <label className="flex cursor-pointer items-start gap-3 rounded-[var(--radius-control)] border-[1.5px] border-line bg-surface p-3.5">
         <input type="checkbox" checked={wantsAlert} onChange={(e) => setWantsAlert(e.target.checked)}
