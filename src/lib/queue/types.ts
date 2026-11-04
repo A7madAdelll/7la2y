@@ -40,6 +40,8 @@ export type EntryStatus = {
   /** Set while serving: when they were called, and the shop's no-show limit. */
   called_at?: string | null;
   no_show_minutes?: number;
+  /** The customer confirmed their number on WhatsApp (the link was sent there). */
+  whatsapp_confirmed?: boolean;
 };
 
 /** Input of public.join_queue(...) */

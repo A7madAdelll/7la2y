@@ -54,7 +54,8 @@ Then `/admin` shows every shop, usage this month, and lets you record manual pay
    Sample values for review: `{{1}}` = صالون النيل, `{{2}}` = 14. Approval can take days; if rejected, reword and resubmit the same day.
 3. Vercel env: `WHATSAPP_TOKEN` (permanent system-user token), `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_TEMPLATE_NAME=queue_near_turn`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` (any random string), and `CRON_SECRET` (random).
 4. App → WhatsApp → Configuration → Webhook: URL `https://<site>/api/whatsapp/webhook`, verify token = `WHATSAPP_VERIFY_TOKEN`, subscribe to **messages**.
-5. Until all of this is set, the app simply sends nothing; alerts older than 30 minutes are closed unsent.
+5. **Confirm on WhatsApp** (optional button on the ticket page): set `NEXT_PUBLIC_WHATSAPP_NUMBER` to the business number in international digits (e.g. `201012345678`) and `NEXT_PUBLIC_SITE_URL` to the real domain (the reply contains the queue link). The webhook in step 4 must be subscribed to **messages**; customers' messages arrive there.
+6. Until all of this is set, the app simply sends nothing; alerts older than 30 minutes are closed unsent.
 
 ## 5. Sentry (error alerts)
 
