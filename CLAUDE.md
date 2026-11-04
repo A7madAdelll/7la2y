@@ -22,6 +22,7 @@ Next.js here has breaking changes: read `node_modules/next/dist/docs/` before us
 - Customer joining is server-only: `join_queue` is granted to `service_role`; the server action does the bot check (Turnstile) and passes the client IP for DB rate limits. Never grant it to `anon`.
 - Live updates: DB triggers send a data-free `changed` ping on public Realtime topic `shop:<id>`; pages refetch what they may see. Never put customer data in a broadcast.
 - WhatsApp: outbox in `message_log`; `/api/cron/whatsapp` (Vercel Cron, every minute, `CRON_SECRET`) claims with `claim_messages` (skip locked), sends template `queue_near_turn` ({{1}} shop, {{2}} ticket), reports with `complete_message`. Webhook verifies `X-Hub-Signature-256` on the raw body before parsing. Unconfigured = sends nothing.
+- Privacy (PDPL 151/2020): customers not seen for `RETENTION_DAYS` (default 90) are erased daily by `/api/cron/retention`; `forget_me(token)` erases on request. Visit rows stay, anonymised. Never add personal data without a retention path.
 - Manual account setup steps live in `docs/setup.md`; keep it current when code needs a new setting.
 - Every new logic path gets a test. CI (`lint`, `typecheck`, `test`, `build`) must pass before merge.
 - Work on a branch, small slices. Do not touch production Supabase from the agent; staging only.

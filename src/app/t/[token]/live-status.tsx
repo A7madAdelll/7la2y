@@ -28,6 +28,12 @@ export function LiveStatus({ token, initial }: { token: string; initial: Live })
         if (error) throw new Error("unknown");
         await refresh();
       }}
+      onForget={async () => {
+        const { error } = await supabaseBrowser().rpc("forget_me", { p_token: token });
+        if (error) throw new Error("unknown");
+        try { for (const k of Object.keys(localStorage)) if (k.startsWith("7la2y:ticket:")) localStorage.removeItem(k); } catch { /* private mode */ }
+        await refresh();
+      }}
     />
   );
 }

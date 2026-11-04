@@ -17,20 +17,32 @@ type Props = {
   status: EntryStatus;
   /** Calls public.leave_queue(token). */
   onLeave: () => Promise<void>;
+  /** Calls public.forget_me(token): erases name and phone from this shop. */
+  onForget?: () => Promise<void>;
 };
 
-export function EntryStatusView({ status, onLeave }: Props) {
+export function EntryStatusView({ status, onLeave, onForget }: Props) {
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const total = status.services.some((s) => s.price_egp === null)
     ? null
     : status.services.reduce((a, s) => a + (s.price_egp ?? 0), 0);
 
+  // Lives here (not in ForgetMe) so the confirmation survives the switch to the "ended" layout.
+  const [forgotten, setForgotten] = useState(false);
+  const forget = forgotten ? (
+    <Notice>اتمسح اسمك ورقمك من المحل ده.</Notice>
+  ) : (
+    onForget && <ForgetMe onForget={async () => { await onForget(); setForgotten(true); }} onError={setError} />
+  );
+
   if (status.status in ENDED) {
     return (
       <div className="flex flex-col gap-4 p-5">
         <Ticket number={status.ticket_no} className="opacity-60" />
         <Notice>{ENDED[status.status]}</Notice>
+        {error && <Notice tone="error">{error}</Notice>}
+        {forget}
       </div>
     );
   }
@@ -98,6 +110,20 @@ export function EntryStatusView({ status, onLeave }: Props) {
         ) : (
           <Button variant="danger" onClick={() => setConfirming(true)}>اخرج من الدور</Button>
         ))}
+      {forget}
     </div>
+  );
+}
+
+/** PDPL: the customer can erase their name and number from this shop at any time. */
+function ForgetMe({ onForget, onError }: { onForget: () => Promise<void>; onError: (m: string) => void }) {
+  return (
+    <button type="button" className="min-h-11 cursor-pointer text-sm text-ink-soft underline underline-offset-4"
+      onClick={async () => {
+        if (!confirm("هنمسح اسمك ورقمك من المحل ده، ولو لسه في الدور هتخرج منه. متأكد؟")) return;
+        try { await onForget(); } catch (e) { onError(errorMessage(e)); }
+      }}>
+      امسح بياناتي
+    </button>
   );
 }
