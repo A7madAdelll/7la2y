@@ -4,16 +4,18 @@ import { useCallback, useState } from "react";
 import { EntryStatusView } from "@/components/customer/entry-status-view";
 import { useShopPings } from "@/components/live/use-shop-pings";
 import type { EntryStatus } from "@/lib/queue/types";
-import { supabaseBrowser } from "@/lib/supabase/browser";
 
 type Live = EntryStatus & { shop_id: string };
+
+/** Loaded on demand so the ticket page renders without the Supabase client in its first bundle. */
+const db = async () => (await import("@/lib/supabase/browser")).supabaseBrowser();
 
 export function LiveStatus({ token, initial }: { token: string; initial: Live }) {
   const [status, setStatus] = useState(initial);
   const active = status.status === "waiting" || status.status === "serving";
 
   const refresh = useCallback(async () => {
-    const { data } = await supabaseBrowser().rpc("entry_status", { p_token: token });
+    const { data } = await (await db()).rpc("entry_status", { p_token: token });
     if (data) setStatus(data as Live);
   }, [token]);
 
@@ -24,12 +26,12 @@ export function LiveStatus({ token, initial }: { token: string; initial: Live })
     <EntryStatusView
       status={status}
       onLeave={async () => {
-        const { error } = await supabaseBrowser().rpc("leave_queue", { p_token: token });
+        const { error } = await (await db()).rpc("leave_queue", { p_token: token });
         if (error) throw new Error("unknown");
         await refresh();
       }}
       onForget={async () => {
-        const { error } = await supabaseBrowser().rpc("forget_me", { p_token: token });
+        const { error } = await (await db()).rpc("forget_me", { p_token: token });
         if (error) throw new Error("unknown");
         try { for (const k of Object.keys(localStorage)) if (k.startsWith("7la2y:ticket:")) localStorage.removeItem(k); } catch { /* private mode */ }
         await refresh();

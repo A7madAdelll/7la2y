@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "budget": "node scripts/js-budget.mjs",
+    "load:db": "vitest run --config vitest.load.config.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
