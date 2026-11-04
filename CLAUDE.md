@@ -1,4 +1,4 @@
-# حلاقي (7la2y) — Barbershop virtual queue
+﻿# حلاقي (7la2y) — Barbershop virtual queue
 
 Plan and decisions live in `docs/` — start with `docs/build-plan.md`. Ahmad supervises; Claude builds.
 
@@ -7,6 +7,7 @@ Plan and decisions live in `docs/` — start with `docs/build-plan.md`. Ahmad su
 - Owners manage their own menu: services, extras, packages and **hospitality** (tea/coffee, 0 minutes, free or paid). Only `main`/`package` make a visit.
 - WhatsApp alert is **opt-in**, one message per entry, sent when 2 are ahead. Never more than one.
 - Optional **"confirm on WhatsApp"**: the customer sends a prefilled code from their own phone; `confirm_whatsapp` accepts it only if the sender equals the booked number, then queues ONE free-form reply (kind `confirm`) with ticket, order and link. The link token is kept only until that reply is sent.
+- App is a **PWA** (installable, one codebase for counter + customer). Customers pick services (prices in EGP shown before joining); wait time = sum of service minutes.
 - Arabic-first, RTL, mobile-first (360 px). Egyptian phone format: `01` + 9 digits.
 
 ## Stack

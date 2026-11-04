@@ -86,9 +86,16 @@ Environments: **local → staging → production**, each with its own Supabase p
 
 **Done when:** an empty RTL page deploys to staging through CI.
 
+## Product decisions added 2 Nov 2026
+
+- **PWA first, no native app.** Counter and customer screens are one responsive web app, installable to the home screen. Capacitor wrapper for the Play Store only if a pilot shop asks.
+- **Services.** Customer picks one main service plus optional extras; prices (EGP) are shown before joining. Wait estimate = sum of the chosen services' durations per barber. Catalog: [services-catalog.md](services-catalog.md).
+- **Audience: Egypt.** Egyptian-Arabic copy, EGP, Africa/Cairo timezone, accept Arabic-Indic digits and +20 in phone input, cheap Android on 3G.
+- Mockups (4 screens) move ahead of Phase 3, in parallel with Phase 1.
+
 ## Phase 1 — Data model and security core (days 2–3)
 
-- [ ] Tables: `shops`, `shop_members` (owner/cashier roles), `barbers`, `customers`, `queue_entries`, `message_log`, `subscriptions`.
+- [ ] Tables: `shops`, `shop_members` (owner/cashier roles), `barbers`, `services` (name, price_egp, minutes, group), `customers`, `queue_entries`, `queue_entry_services` (price/minutes copied at join time), `message_log`, `subscriptions`.
 - [ ] Constraints: one active entry per phone per shop (partial unique index), valid status transitions, foreign keys with indexes.
 - [ ] Queue actions as **Postgres functions in one transaction with row locks** (`next`, `join` — validates the shop's presence code, `no_show`, `leave`, `reorder`) — fixes double-tap and race conditions at the root.
 - [ ] RLS on every table; customers never get direct table access, only through functions.
