@@ -26,7 +26,14 @@ async function Shops() {
   const shops = (data ?? []) as unknown as { shop_id: string; role: string; shops: { name: string } | null }[];
   if (shops.length === 1) redirect(`/counter/${shops[0].shop_id}`);
   if (shops.length === 0) {
-    return <Notice>الحساب ده مش مربوط بأي محل لسه. لو إنت كاشير، اطلب من صاحب المحل يضيفك.</Notice>;
+    return (
+      <>
+        <Notice>الحساب ده مش مربوط بأي محل لسه. لو إنت كاشير، اطلب من صاحب المحل يبعتلك دعوة.</Notice>
+        <Link href="/onboarding" className="flex min-h-13 items-center justify-center rounded-[14px] bg-brand px-4 font-bold text-white hover:bg-brand-strong">
+          أنا صاحب محل: اعمل محل جديد
+        </Link>
+      </>
+    );
   }
   return (
     <>
