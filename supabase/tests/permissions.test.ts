@@ -7,7 +7,7 @@ import { TestDb, hasDb } from "./db";
 const ANON_FUNCTIONS = ["entry_status", "forget_me", "leave_queue", "request_whatsapp_confirm", "shop_public", "tv_board"];
 const STAFF_FUNCTIONS = [
   ...ANON_FUNCTIONS,
-  "accept_invite", "admin_record_payment", "admin_shops", "alerts_per_month", "counter_state",
+  "accept_invite", "admin_record_payment", "admin_set_service", "admin_shops", "alerts_per_month", "counter_state",
   "create_invite", "create_shop", "is_platform_admin", "queue_cancel", "queue_next", "queue_no_show",
   "queue_reorder", "remove_cashier", "rotate_tv_link", "set_barber_on_duty", "set_queue_open",
   "shop_staff", "staff_add_walk_in", "staff_presence_code",

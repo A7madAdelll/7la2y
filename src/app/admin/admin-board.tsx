@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Notice, TextField, cn } from "@/components/ui";
 import { errorMessage } from "@/lib/errors";
-import { amountDue, PRICE_PER_HAIRCUT_EGP } from "@/lib/billing";
+import { amountDue, invoiceText, PRICE_PER_HAIRCUT_EGP, whatsappLink } from "@/lib/billing";
 import { formatDate, formatEGP } from "@/lib/format";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 
@@ -12,6 +12,7 @@ export type AdminShop = {
   id: string; name: string; slug: string; created_at: string; owner_email: string | null;
   sub_status: string | null; sub_plan: string | null; paid_until: string | null;
   visits_this_month: number; alerts_this_month: number; haircuts_this_month: number;
+  service_on: boolean;
 };
 
 const METHODS = [
@@ -65,7 +66,10 @@ export function AdminBoard({ shops, today }: { shops: AdminShop[]; today: string
                 <span className="font-bold">{s.name}</span>
                 <span dir="ltr" className="text-right text-[13px] text-ink-soft">/{s.slug} · {s.owner_email ?? "—"}</span>
               </span>
-              <span className={cn("rounded-full px-2.5 py-1 text-[13px]", st.tone)}>{st.text}</span>
+              <span className="flex flex-col items-end gap-1">
+                <span className={cn("rounded-full px-2.5 py-1 text-[13px]", st.tone)}>{st.text}</span>
+                {!s.service_on && <span className="rounded-full bg-danger-tint px-2.5 py-1 text-[13px] text-danger">الخدمة مقفولة</span>}
+              </span>
             </div>
             <span className="text-sm text-ink-soft">
               الشهر ده: {s.haircuts_this_month} حلاقة خلصت (من {s.visits_this_month} حجز) · {s.alerts_this_month} رسالة واتساب
@@ -74,13 +78,39 @@ export function AdminBoard({ shops, today }: { shops: AdminShop[]; today: string
             {paying === s.id ? (
               <PaymentForm shopId={s.id} today={today} onDone={() => setPaying(null)} />
             ) : (
-              <Button size="md" variant="outline" onClick={() => setPaying(s.id)}>سجّل دفعة</Button>
+              <div className="grid grid-cols-3 gap-2">
+                <a href={whatsappLink(invoiceText(s.name, Number(s.haircuts_this_month)))} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center justify-center rounded-[14px] border-[1.5px] border-brand bg-surface px-2 text-[15px] font-bold text-brand hover:bg-brand-tint">
+                  ابعت الفاتورة
+                </a>
+                <Button size="md" variant="outline" onClick={() => setPaying(s.id)}>سجّل دفعة</Button>
+                <ServiceSwitch shop={s} />
+              </div>
             )}
           </Card>
         );
       })}
       {shown.length === 0 && <Notice>مفيش محلات بالبحث ده.</Notice>}
     </div>
+  );
+}
+
+/** Turns the shop's service on/off. Off blocks new joins only; people already waiting are served. */
+function ServiceSwitch({ shop }: { shop: AdminShop }) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <>
+      <Button size="md" variant={shop.service_on ? "danger" : "primary"} onClick={async () => {
+        if (shop.service_on && !window.confirm(`تقفل الخدمة على ${shop.name}؟ محدش جديد هيعرف يدخل الدور.`)) return;
+        const { error: err } = await supabaseBrowser().rpc("admin_set_service", { p_shop_id: shop.id, p_enabled: !shop.service_on });
+        if (err) return setError(errorMessage(err));
+        router.refresh();
+      }}>
+        {shop.service_on ? "اقفل الخدمة" : "افتح الخدمة"}
+      </Button>
+      {error && <div className="col-span-3"><Notice tone="error">{error}</Notice></div>}
+    </>
   );
 }
 

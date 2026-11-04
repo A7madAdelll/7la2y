@@ -20,7 +20,7 @@ people. Order matters: each block unblocks the next.
 - [ ] Women's salons later as booking mode? (recommended)
 - [x] No-show limit: per-shop setting (default 10 min) shown to the called customer; cashier presses «مجاش» (no auto-cancel: "Next" seats directly, so a timer would flag every haircut)
 - [x] Pricing: 1 EGP per finished haircut; `/admin` shows haircuts and amount due per shop
-- [ ] Unpaid shops: show only (current) or block after N days?
+- [x] Payment is manual: Ahmad sends the invoice (button in `/admin` opens WhatsApp with the text), records the payment, and turns a shop's service off/on (off = no new joins; people already waiting are still served)
 - [ ] Under-reporting: a shop could serve people without the app. Decide whether to add a monthly minimum or compare with spot checks
 - [ ] Retention 90 days OK? (`RETENTION_DAYS`)
 - [ ] Look approved (mockups / `/demo`)

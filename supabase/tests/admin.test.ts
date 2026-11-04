@@ -51,6 +51,23 @@ describe.skipIf(!hasDb)("platform admin", () => {
     expect(await errorOf(db.rpc(user(admin), "admin_record_payment", [s.shopId, "basic", 300, "cash", "2026-11-30", "2026-11-01", null]))).toBe("invalid_payment");
   });
 
+  it("admin switches a shop's service off and on; off blocks new joins and walk-ins only", async () => {
+    const s = await db.createShop();
+    const waiting = await join(db, s);
+    expect(await errorOf(db.rpc(user(s.owner), "admin_set_service", [s.shopId, false]))).toBe("forbidden");
+    await db.rpc(user(admin), "admin_set_service", [s.shopId, false]);
+    expect((await shops(admin)).find((r) => r.id === s.shopId).service_on).toBe(false);
+    expect(await errorOf(join(db, s))).toBe("service_suspended");
+    expect(await errorOf(db.rpc(user(s.owner), "staff_add_walk_in", [s.shopId, "زبون", null, [s.service("قصة شعر")]]))).toBe("service_suspended");
+    // Already waiting: still served.
+    await db.rpc(user(s.owner), "queue_next", [s.barberIds[0], null]);
+    expect(waiting.entry_id).toBeTruthy();
+    await db.rpc(user(admin), "admin_set_service", [s.shopId, true]);
+    expect((await shops(admin)).find((r) => r.id === s.shopId).service_on).toBe(true);
+    expect((await join(db, s)).entry_id).toBeTruthy();
+    expect(await errorOf(db.rpc(user(admin), "admin_set_service", ["00000000-0000-0000-0000-000000000000", false]))).toBe("shop_not_found");
+  });
+
   it("bills only finished haircuts this month (not no-shows or people who left)", async () => {
     const s = await db.createShop();
     const a = await join(db, s);
