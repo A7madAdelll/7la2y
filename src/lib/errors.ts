@@ -21,6 +21,8 @@ export const ERROR_MESSAGES = {
   invalid_shop: "بيانات المحل مش صح.",
   rate_limited: "محاولات كتير ورا بعض. استنى 10 دقايق وجرب تاني.",
   invalid_client: "حصلت مشكلة. جرب تاني بعد شوية.",
+  invalid_request: "في حاجة ناقصة في البيانات. حدّث الصفحة وجرب تاني.",
+  bot_check_failed: "معرفناش نتأكد إنك مش روبوت. حدّث الصفحة وجرب تاني.",
 } as const;
 
 export type ErrorKey = keyof typeof ERROR_MESSAGES;
