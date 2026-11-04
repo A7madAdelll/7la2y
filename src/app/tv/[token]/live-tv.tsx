@@ -6,7 +6,7 @@ import { TvBoard } from "@/components/tv/tv-board";
 import type { TvData } from "@/lib/queue/types";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 
-export function LiveTv({ token, initial }: { token: string; initial: TvData | null }) {
+export function LiveTv({ token, initial, qr }: { token: string; initial: TvData | null; qr?: React.ReactNode }) {
   const [data, setData] = useState<TvData | null>(initial);
   const refresh = useCallback(async () => {
     const { data: d, error } = await supabaseBrowser().rpc("tv_board", { p_tv_token: token });
@@ -26,5 +26,5 @@ export function LiveTv({ token, initial }: { token: string; initial: TvData | nu
   if (data === null) {
     return <p className="grid min-h-dvh place-items-center bg-ink p-8 text-center text-2xl text-paper">لينك الشاشة ده اتغير. خد اللينك الجديد من إعدادات المحل.</p>;
   }
-  return <TvBoard data={data} />;
+  return <TvBoard data={data} qr={qr} />;
 }
