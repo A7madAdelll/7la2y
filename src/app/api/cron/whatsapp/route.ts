@@ -6,7 +6,7 @@ import { whatsappConfig } from "@/lib/whatsapp/config";
 import { sendTemplate, sendText } from "@/lib/whatsapp/meta";
 import { publicOrigin, runOutbox, type Claimed } from "@/lib/whatsapp/outbox";
 
-/** Called every minute by Vercel Cron (vercel.json) with "Authorization: Bearer $CRON_SECRET". */
+/** Must run every minute with "Authorization: Bearer $CRON_SECRET": Vercel Pro cron or an external scheduler (docs/setup.md). */
 export async function GET(request: NextRequest) {
   if (!hasBearer(request.headers.get("authorization"), process.env.CRON_SECRET)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });

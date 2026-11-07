@@ -39,7 +39,11 @@ Then `/admin` shows every shop, usage this month, and lets you record manual pay
 
 ## 3. Vercel (unblocks: trying everything on a real phone)
 
-1. vercel.com → Import the GitHub repo `A7madAdelll/7la2y`. Plan: Pro for commercial use.
+1. vercel.com → Import the GitHub repo `A7madAdelll/7la2y`. Hobby works for staging; Pro is required for commercial use (before the pilot).
+   - Hobby allows only daily crons, so `vercel.json` runs `/api/cron/whatsapp` once a day. Alerts must go out within minutes, so once WhatsApp is configured either:
+     - upgrade to Pro and change its schedule in `vercel.json` back to `* * * * *`, or
+     - use a free external scheduler (e.g. cron-job.org): every minute, `GET https://<site>/api/cron/whatsapp` with header `Authorization: Bearer <CRON_SECRET>`.
+   - Without WhatsApp settings the route sends nothing, so daily is fine until then.
 2. Environment variables: all names from `.env.example` (Preview = staging values).
 3. After the first deploy, open `/demo` on your phone; then a real shop link once a shop exists.
 
