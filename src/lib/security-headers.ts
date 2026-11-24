@@ -6,7 +6,7 @@
  */
 export function securityHeaders(opts: { supabaseUrl?: string; dev: boolean }) {
   const supabase = opts.supabaseUrl ? new URL(opts.supabaseUrl).origin : "https://*.supabase.co";
-  const supabaseWs = supabase.replace(/^https:/, "wss:");
+  const supabaseWs = supabase.replace(/^http/, "ws"); // https -> wss, local http -> ws
   const turnstile = "https://challenges.cloudflare.com";
   const csp = [
     "default-src 'self'",
