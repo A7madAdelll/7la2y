@@ -14,6 +14,10 @@ describe("securityHeaders", () => {
   it("falls back to any Supabase project when the URL is not known at build time", () => {
     expect(csp(securityHeaders({ dev: false }))).toContain("wss://*.supabase.co");
   });
+  it("allows realtime ws:// for a local http Supabase (supabase start)", () => {
+    const c = csp(securityHeaders({ supabaseUrl: "http://127.0.0.1:54321", dev: true }));
+    expect(c).toContain("connect-src 'self' http://127.0.0.1:54321 ws://127.0.0.1:54321 ");
+  });
   it("sends HSTS", () => {
     expect(securityHeaders({ dev: false }).some((h) => h.key === "Strict-Transport-Security")).toBe(true);
   });
